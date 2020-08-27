@@ -349,60 +349,31 @@ def switchMapHandler(evt) {
 	state.countOn = 0
 	state.countOff = 0
 	
-	if(switchMode == "Full" || switchMode == "Only On") {
-		switches.each { it ->
-            switchName = it.displayName
-	        switchStatus = it.currentValue("switch")
-            try {
-                powerLvl = it.currentValue("power")
-                if(powerLvl == null) powerLvl = ""
-                if(logEnable) log.trace "Snapshot - device: ${it} - power: ${powerLvl}"
-            } catch(e) {
-                if(logEnable) log.trace "Snapshot - device: ${it} - Doesn't have power attribute"
-                if(powerLvl == null) powerLvl = ""
-            }
-            if(logEnable) log.debug "In switchMapHandler - Working on: ${switchName} - ${switchStatus}"
-            if(switchStatus == "on") {  
-			    state.count = state.count + 1
-			    state.countOn = state.countOn + 1
-			    if(logEnable) log.debug "In switchMapHandler - Building Table ON with ${switchName} count: ${state.count}"
-			    if((state.count >= 1) && (state.count <= 5)) state.fSwitchMap1S += "<tr><td>${switchName}</td><td> ${powerLvl} </td><td><div style='color: ${switchesOnColor};'>on</div></td></tr>"
-			    if((state.count >= 6) && (state.count <= 10)) state.fSwitchMap2S += "<tr><td>${switchName}</td><td> ${powerLvl} </td><td><div style='color: ${switchesOnColor};'>on</div></td></tr>"
-			    if((state.count >= 11) && (state.count <= 15)) state.fSwitchMap3S += "<tr><td>${switchName}</td><td> ${powerLvl} </td><td><div style='color: ${switchesOnColor};'>on</div></td></tr>"
-			    if((state.count >= 16) && (state.count <= 20)) state.fSwitchMap4S += "<tr><td>${switchName}</td><td> ${powerLvl} </td><td><div style='color: ${switchesOnColor};'>on</div></td></tr>"
-			    if((state.count >= 21) && (state.count <= 25)) state.fSwitchMap5S += "<tr><td>${switchName}</td><td> ${powerLvl} </td><td><div style='color: ${switchesOnColor};'>on</div></td></tr>"
-			    if((state.count >= 26) && (state.count <= 30)) state.fSwitchMap6S += "<tr><td>${switchName}</td><td> ${powerLvl} </td><td><div style='color: ${switchesOnColor};'>on</div></td></tr>"
-		    }
+	switches.each { it ->
+        switchName = it.displayName
+	    switchStatus = it.currentValue("switch")
+        try {
+            powerLvl = it.currentValue("level")
+            if(powerLvl == null) powerLvl = ""
+            if(logEnable) log.trace "Snapshot - device: ${it} - power: ${powerLvl}"
+            log.trace "Snapshot - device: ${it} - power: ${powerLvl}"
+        } catch(e) {
+            if(logEnable) log.trace "Snapshot - device: ${it} - Doesn't have power attribute"
+            if(powerLvl == null) powerLvl = ""
         }
-        
-	    switches.each { it ->
-            switchName = it.displayName
-	        switchStatus = it.currentValue("switch")
-            try {
-                powerLvl = it.currentValue("power")
-                if(powerLvl == null) powerLvl = ""
-                if(logEnable) log.trace "Snapshot - device: ${it} - power: ${powerLvl}"
-            } catch(e) {
-                if(logEnable) log.trace "Snapshot - device: ${it} - Doesn't have power attribute"
-                if(powerLvl == null) powerLvl = ""
-            }
-            if(logEnable) log.debug "In switchMapHandler - Working on: ${switchName} - ${switchStatus}"
-	        if(switchMode == "Full" || switchMode == "Only Off") {
-	    	    if(switchStatus == "off") {
-		           	state.count = state.count + 1
-			        state.countOff = state.countOff + 1
-			        if(logEnable) log.debug "In switchMapHandler - Building Table OFF with ${switchName} count: ${state.count}"
-			        if((state.count >= 1) && (state.count <= 5)) state.fSwitchMap1S += "<tr><td>${switchName}</td><td> ${powerLvl} </td><td><div style='color: ${switchesOffColor};'>off</div></td></tr>"
-			        if((state.count >= 6) && (state.count <= 10)) state.fSwitchMap2S += "<tr><td>${switchName}</td><td> ${powerLvl} </td><td><div style='color: ${switchesOffColor};'>off</div></td></tr>"
-		    	    if((state.count >= 11) && (state.count <= 15)) state.fSwitchMap3S += "<tr><td>${switchName}</td><td> ${powerLvl} </td><td><div style='color: ${switchesOffColor};'>off</div></td></tr>"
-		    	    if((state.count >= 16) && (state.count <= 20)) state.fSwitchMap4S += "<tr><td>${switchName}</td><td> ${powerLvl} </td><td><div style='color: ${switchesOffColor};'>off</div></td></tr>"	
-		    	    if((state.count >= 21) && (state.count <= 25)) state.fSwitchMap5S += "<tr><td>${switchName}</td><td> ${powerLvl} </td><td><div style='color: ${switchesOffColor};'>off</div></td></tr>"	
-			        if((state.count >= 26) && (state.count <= 30)) state.fSwitchMap6S += "<tr><td>${switchName}</td><td> ${powerLvl} </td><td><div style='color: ${switchesOffColor};'>off</div></td></tr>"	
-		        }
-            }
+        if(logEnable) log.debug "In switchMapHandler - Working on: ${switchName} - ${switchStatus}"
+        if(switchMode == "Full" || (switchMode == "Only On" && switchStatus == "on" || switchStatus == "night") || (switchMode == "Only Off" && switchStatus == "off")) {
+	        state.count = state.count + 1
+	        state.countOn = state.countOn + 1
+            if(logEnable) log.debug "In switchMapHandler - Building Table ON with ${switchName} count: ${state.count}"
+	        if((state.count >= 1) && (state.count <= 5)) state.fSwitchMap1S += "<tr><td>${switchName}</td><td><div style='color: ${switchesOnColor};'>${switchStatus}</div></td></tr>"
+	        if((state.count >= 6) && (state.count <= 10)) state.fSwitchMap2S += "<tr><td>${switchName}</td><td><div style='color: ${switchesOnColor};'>${switchStatus}</div></td></tr>"
+	        if((state.count >= 11) && (state.count <= 15)) state.fSwitchMap3S += "<tr><td>${switchName}</td><td><div style='color: ${switchesOnColor};'>${switchStatus}</div></td></tr>"
+	        if((state.count >= 16) && (state.count <= 20)) state.fSwitchMap4S += "<tr><td>${switchName}</td><td><div style='color: ${switchesOnColor};'>${switchStatus}</div></td></tr>"
+	        if((state.count >= 21) && (state.count <= 25)) state.fSwitchMap5S += "<tr><td>${switchName}</td><td><div style='color: ${switchesOnColor};'>${switchStatus}</div></td></tr>"
+	        if((state.count >= 26) && (state.count <= 30)) state.fSwitchMap6S += "<tr><td>${switchName}</td><td><div style='color: ${switchesOnColor};'>${switchStatus}</div></td></tr>"
 	    }
     }
-	
 	state.fSwitchMap1S += "</table>"
 	state.fSwitchMap2S += "</table>"
 	state.fSwitchMap3S += "</table>"
@@ -1223,11 +1194,9 @@ def getFormat(type, myText="") {			// Modified from @Stephack Code
 
 def display() {
     setVersion()
-    getHeaderAndFooter()
     theName = app.label
     if(theName == null || theName == "") theName = "New Child App"
     section (getFormat("title", "${getImage("logo")}" + " ${state.name} - ${theName}")) {
-        paragraph "${state.headerMessage}"
 		paragraph getFormat("line")
 	}
 }
@@ -1236,30 +1205,5 @@ def display2() {
 	section() {
 		paragraph getFormat("line")
 		paragraph "<div style='color:#1A77C9;text-align:center;font-size:20px;font-weight:bold'>${state.name} - ${state.version}</div>"
-        paragraph "${state.footerMessage}"
 	}       
-}
-
-def getHeaderAndFooter() {
-    if(logEnable) log.debug "In getHeaderAndFooter (${state.version})"
-    def params = [
-	    uri: "https://raw.githubusercontent.com/bptworld/Hubitat/master/info.json",
-		requestContentType: "application/json",
-		contentType: "application/json",
-		timeout: 30
-	]
-    
-    try {
-        def result = null
-        httpGet(params) { resp ->
-            state.headerMessage = resp.data.headerMessage
-            state.footerMessage = resp.data.footerMessage
-        }
-        if(logEnable) log.debug "In getHeaderAndFooter - headerMessage: ${state.headerMessage}"
-        if(logEnable) log.debug "In getHeaderAndFooter - footerMessage: ${state.footerMessage}"
-    }
-    catch (e) {
-        state.headerMessage = "<div style='color:#1A77C9'><a href='https://github.com/bptworld/Hubitat' target='_blank'>BPTWorld Apps and Drivers</a></div>"
-        state.footerMessage = "<div style='color:#1A77C9;text-align:center'>BPTWorld<br><a href='https://github.com/bptworld/Hubitat' target='_blank'>Find more apps on my Github, just click here!</a><br><a href='https://paypal.me/bptworld' target='_blank'>Paypal</a></div>"
-    }
 }
